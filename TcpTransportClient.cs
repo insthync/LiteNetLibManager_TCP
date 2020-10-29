@@ -9,14 +9,22 @@ namespace LiteNetLibManager
     {
         public ConcurrentQueue<TransportEventData> EventQueue { get; private set; }
 
+        private readonly Buffer _readBuffer;
+        private int _packetReadingSize;
+
         public TcpTransportClient(IPAddress address, int port) : base(address, port)
         {
             EventQueue = new ConcurrentQueue<TransportEventData>();
+            _readBuffer = new Buffer(0);
+            _packetReadingSize = 0;
         }
 
         protected override void OnConnected()
         {
             base.OnConnected();
+            _readBuffer.Resize(OptionReceiveBufferSize);
+            _readBuffer.Clear();
+            _packetReadingSize = 0;
             EventQueue.Enqueue(new TransportEventData()
             {
                 type = ENetworkEvent.ConnectEvent,
@@ -44,12 +52,64 @@ namespace LiteNetLibManager
 
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
-            base.OnReceived(buffer, offset, size);
-            EventQueue.Enqueue(new TransportEventData()
+            _readBuffer.Append(buffer, (int)offset, (int)size);
+            if (_packetReadingSize == 0)
             {
-                type = ENetworkEvent.DataEvent,
-                reader = new NetDataReader(buffer, (int)offset, (int)size),
-            });
+                if (!ReadPacketSize())
+                    return;
+            }
+
+            while (_packetReadingSize > 0 && _packetReadingSize <= _readBuffer.Size)
+            {
+                byte[] coppiedBuffer = new byte[_packetReadingSize];
+                System.Buffer.BlockCopy(_readBuffer.Data, 0, coppiedBuffer, 0, _packetReadingSize);
+                EventQueue.Enqueue(new TransportEventData()
+                {
+                    type = ENetworkEvent.DataEvent,
+                    reader = new NetDataReader(coppiedBuffer),
+                });
+                // Remove readed data from buffer
+                _readBuffer.Remove(0, _packetReadingSize);
+                // Check next packet size
+                if (!ReadPacketSize())
+                    return;
+            }
+        }
+
+        private bool ReadPacketSize()
+        {
+            if (_readBuffer.Size < 4)
+            {
+                _packetReadingSize = 0;
+                return false;
+            }
+
+            _packetReadingSize =
+                (_readBuffer.Data[0] << 24) |
+                (_readBuffer.Data[1] << 16) |
+                (_readBuffer.Data[2] << 8) |
+                _readBuffer.Data[3];
+            _readBuffer.Remove(0, 4);
+
+            if (_packetReadingSize > _readBuffer.Capacity)
+            {
+                // May log that developer set too small `OptionReceiveBufferSize`
+                _packetReadingSize = 0;
+                _readBuffer.Clear();
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool SendPacket(int length, byte[] buffer)
+        {
+            return SendAsync(new byte[] {
+                (byte)(length >> 24),
+                (byte)(length >> 16),
+                (byte)(length >> 8),
+                (byte)length
+            }) && SendAsync(buffer, 0, length);
         }
     }
 }

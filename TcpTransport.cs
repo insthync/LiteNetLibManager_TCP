@@ -37,7 +37,7 @@ namespace LiteNetLibManager
         {
             if (IsClientStarted())
             {
-                return client.SendAsync(writer.Data);
+                return client.SendPacket(writer.Length, writer.Data);
             }
             return false;
         }
@@ -96,7 +96,7 @@ namespace LiteNetLibManager
 
         public bool ServerSend(long connectionId, DeliveryMethod deliveryMethod, NetDataWriter writer)
         {
-            return server != null && server.Send(connectionId, writer.Data);
+            return server != null && server.SendPacket(connectionId, writer.Length, writer.Data);
         }
 
         public bool StartServer(int port, int maxConnections)
