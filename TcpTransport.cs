@@ -9,6 +9,32 @@ namespace LiteNetLibManager
     {
         private TcpTransportClient client;
         private TcpTransportServer server;
+        public bool IsClientStarted
+        {
+            get { return client != null && client.IsConnected; }
+        }
+        public bool IsServerStarted
+        {
+            get { return server != null && server.IsStarted; }
+        }
+        public int ServerPeersCount
+        {
+            get
+            {
+                if (server != null)
+                    return server.PeersCount;
+                return 0;
+            }
+        }
+        public int ServerMaxConnections
+        {
+            get
+            {
+                if (server != null)
+                    return server.MaxConnections;
+                return 0;
+            }
+        }
 
         public TcpTransport() { }
 
@@ -18,15 +44,10 @@ namespace LiteNetLibManager
             StopServer();
         }
 
-        public bool IsClientStarted()
-        {
-            return client != null && client.IsConnected;
-        }
-
         public bool ClientReceive(out TransportEventData eventData)
         {
             eventData = default(TransportEventData);
-            if (!IsClientStarted())
+            if (!IsClientStarted)
                 return false;
             if (client.EventQueue.Count == 0)
                 return false;
@@ -35,7 +56,7 @@ namespace LiteNetLibManager
 
         public bool ClientSend(DeliveryMethod deliveryMethod, NetDataWriter writer)
         {
-            if (IsClientStarted())
+            if (IsClientStarted)
             {
                 return client.SendPacket(writer.Length, writer.Data);
             }
@@ -74,11 +95,6 @@ namespace LiteNetLibManager
             client = null;
         }
 
-        public bool IsServerStarted()
-        {
-            return server != null && server.IsStarted;
-        }
-
         public bool ServerDisconnect(long connectionId)
         {
             return server != null && server.Disconnect(connectionId);
@@ -87,7 +103,7 @@ namespace LiteNetLibManager
         public bool ServerReceive(out TransportEventData eventData)
         {
             eventData = default(TransportEventData);
-            if (!IsServerStarted())
+            if (!IsServerStarted)
                 return false;
             if (server.EventQueue.Count == 0)
                 return false;
@@ -101,9 +117,9 @@ namespace LiteNetLibManager
 
         public bool StartServer(int port, int maxConnections)
         {
-            if (IsServerStarted())
+            if (IsServerStarted)
                 return false;
-            server = new TcpTransportServer(IPAddress.Any, port);
+            server = new TcpTransportServer(IPAddress.Any, port, maxConnections);
             server.OptionDualMode = true;
             server.OptionNoDelay = true;
             return server.Start();
@@ -114,13 +130,6 @@ namespace LiteNetLibManager
             if (server != null)
                 server.Dispose();
             server = null;
-        }
-
-        public int GetServerPeersCount()
-        {
-            if (server != null)
-                return server.PeersCount;
-            return 0;
         }
     }
 }
