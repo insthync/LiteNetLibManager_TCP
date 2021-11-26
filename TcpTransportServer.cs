@@ -33,9 +33,9 @@ namespace LiteNetLibManager
             return newSession;
         }
 
-        internal bool SendPacket(long connectionId, int length, byte[] buffer)
+        internal bool SendAsync(long connectionId, byte[] buffer)
         {
-            return AcceptedClients.ContainsKey(connectionId) && AcceptedClients[connectionId].SendPacket(length, buffer);
+            return AcceptedClients.ContainsKey(connectionId) && AcceptedClients[connectionId].SendAsync(buffer);
         }
 
         internal bool Disconnect(long connectionId)
