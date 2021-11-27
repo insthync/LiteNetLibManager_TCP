@@ -54,11 +54,11 @@ namespace LiteNetLibManager
             return client.EventQueue.TryDequeue(out eventData);
         }
 
-        public bool ClientSend(byte dataChannel, DeliveryMethod deliveryMethod, byte[] data)
+        public bool ClientSend(byte dataChannel, DeliveryMethod deliveryMethod, NetDataWriter writer)
         {
             if (IsClientStarted)
             {
-                return client.SendAsync(data);
+                return client.SendAsync(writer.Data);
             }
             return false;
         }
@@ -110,9 +110,9 @@ namespace LiteNetLibManager
             return server.EventQueue.TryDequeue(out eventData);
         }
 
-        public bool ServerSend(long connectionId, byte dataChannel, DeliveryMethod deliveryMethod, byte[] data)
+        public bool ServerSend(long connectionId, byte dataChannel, DeliveryMethod deliveryMethod, NetDataWriter writer)
         {
-            return server != null && server.SendAsync(connectionId, data);
+            return server != null && server.SendAsync(connectionId, writer.Data);
         }
 
         public bool StartServer(int port, int maxConnections)
