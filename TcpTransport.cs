@@ -47,7 +47,7 @@ namespace LiteNetLibManager
         public bool ClientReceive(out TransportEventData eventData)
         {
             eventData = default(TransportEventData);
-            if (!IsClientStarted)
+            if (client == null)
                 return false;
             if (client.EventQueue.Count == 0)
                 return false;
