@@ -1,0 +1,16 @@
+{
+    "name": "TcpTransport",
+    "references": [
+        "GUID:213773efbee1c874e8264de949c544d2",
+        "GUID:302cce8bc3ee0014da34daebe3087f54"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
