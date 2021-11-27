@@ -47,7 +47,7 @@ namespace LiteNetLibManager
         public bool ClientReceive(out TransportEventData eventData)
         {
             eventData = default(TransportEventData);
-            if (client == null)
+            if (!IsClientStarted)
                 return false;
             if (client.EventQueue.Count == 0)
                 return false;
@@ -58,7 +58,7 @@ namespace LiteNetLibManager
         {
             if (IsClientStarted)
             {
-                return client.SendAsync(writer.Data);
+                return client.SendPacket(writer.Length, writer.Data);
             }
             return false;
         }
@@ -112,7 +112,7 @@ namespace LiteNetLibManager
 
         public bool ServerSend(long connectionId, byte dataChannel, DeliveryMethod deliveryMethod, NetDataWriter writer)
         {
-            return server != null && server.SendAsync(connectionId, writer.Data);
+            return server != null && server.SendPacket(connectionId, writer.Length, writer.Data);
         }
 
         public bool StartServer(int port, int maxConnections)
