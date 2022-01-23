@@ -94,15 +94,6 @@ namespace LiteNetLibManager
                 (_readBuffer.Data[2] << 8) |
                 _readBuffer.Data[3];
             _readBuffer.Remove(0, 4);
-
-            if (_packetReadingSize > _readBuffer.Capacity)
-            {
-                // May log that developer set too small `OptionReceiveBufferSize`
-                _packetReadingSize = 0;
-                _readBuffer.Clear();
-                return false;
-            }
-
             return true;
         }
 
