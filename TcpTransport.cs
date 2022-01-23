@@ -2,11 +2,13 @@
 using LiteNetLib.Utils;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace LiteNetLibManager
 {
-    public sealed class TcpTransport : ITransport
+    public sealed class TcpTransport : ITransport, ITransportConnectionGenerator
     {
+        private long nextConnectionId = 1;
         private TcpTransportClient client;
         private TcpTransportServer server;
         public bool IsClientStarted
@@ -119,7 +121,7 @@ namespace LiteNetLibManager
         {
             if (IsServerStarted)
                 return false;
-            server = new TcpTransportServer(IPAddress.Any, port, maxConnections);
+            server = new TcpTransportServer(this, IPAddress.Any, port, maxConnections);
             server.OptionDualMode = true;
             server.OptionNoDelay = true;
             return server.Start();
@@ -130,6 +132,12 @@ namespace LiteNetLibManager
             if (server != null)
                 server.Dispose();
             server = null;
+            nextConnectionId = 1;
+        }
+
+        public long GetNewConnectionID()
+        {
+            return Interlocked.Increment(ref nextConnectionId);
         }
     }
 }

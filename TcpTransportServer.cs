@@ -9,21 +9,21 @@ namespace LiteNetLibManager
         public ConcurrentDictionary<long, TcpTransportSession> AcceptedClients { get; private set; }
         public ConcurrentQueue<TransportEventData> EventQueue { get; private set; }
         public int PeersCount { get { return AcceptedClients.Count; } }
-        public int MaxConnections { get; private set; } 
+        public int MaxConnections { get; private set; }
 
-        private long _nextConnectionId;
+        private ITransportConnectionGenerator connectionGenerator;
 
-        public TcpTransportServer(IPAddress address, int port, int maxConnections) : base(address, port)
+        public TcpTransportServer(ITransportConnectionGenerator connectionGenerator, IPAddress address, int port, int maxConnections) : base(address, port)
         {
+            this.connectionGenerator = connectionGenerator;
             AcceptedClients = new ConcurrentDictionary<long, TcpTransportSession>();
             EventQueue = new ConcurrentQueue<TransportEventData>();
             MaxConnections = maxConnections;
-            _nextConnectionId = 1;
         }
 
         protected override TcpSession CreateSession()
         {
-            TcpTransportSession newSession = new TcpTransportSession(_nextConnectionId++, this);
+            TcpTransportSession newSession = new TcpTransportSession(connectionGenerator.GetNewConnectionID(), this);
             if (PeersCount >= MaxConnections)
             {
                 newSession.Disconnect();
