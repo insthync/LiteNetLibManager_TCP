@@ -67,9 +67,18 @@ namespace LiteNetLibManager
 
         public bool StartClient(string address, int port)
         {
+            if (IsClientStarted)
+            {
+                Logging.Log(nameof(TcpTransport), "Client started, so it can't be started again");
+                return false;
+            }
+
             IPAddress[] ipAddresses = Dns.GetHostAddresses(address);
             if (ipAddresses.Length == 0)
+            {
+                Logging.Log(nameof(TcpTransport), "Cannot find IP addresses from " + address);
                 return false;
+            }
 
             int indexOfAddress = -1;
             for (int i = 0; i < ipAddresses.Length; ++i)
@@ -82,7 +91,10 @@ namespace LiteNetLibManager
             }
 
             if (indexOfAddress < 0)
+            {
+                Logging.Log(nameof(TcpTransport), "Cannot find index of address from " + address);
                 return false;
+            }
 
             client = new TcpTransportClient(ipAddresses[indexOfAddress], port);
             client.OptionDualMode = true;
