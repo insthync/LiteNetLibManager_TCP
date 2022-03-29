@@ -39,6 +39,10 @@ namespace LiteNetLibManager
             {
                 connectionId = ConnectionId,
                 type = ENetworkEvent.DisconnectEvent,
+                disconnectInfo = new LiteNetLib.DisconnectInfo()
+                {
+                    Reason = LiteNetLib.DisconnectReason.RemoteConnectionClose,
+                },
             });
         }
 
