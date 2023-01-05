@@ -15,16 +15,13 @@ namespace LiteNetLibManager
         {
             ConnectionId = connectionId;
             _server = server;
-            _readBuffer = new Buffer(0);
+            _readBuffer = new Buffer(OptionReceiveBufferSize);
             _packetReadingSize = 0;
         }
 
         protected override void OnConnected()
         {
             base.OnConnected();
-            _readBuffer.Resize(OptionReceiveBufferSize);
-            _readBuffer.Clear();
-            _packetReadingSize = 0;
             _server.EventQueue.Enqueue(new TransportEventData()
             {
                 connectionId = ConnectionId,

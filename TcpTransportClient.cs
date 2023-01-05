@@ -15,16 +15,13 @@ namespace LiteNetLibManager
         public TcpTransportClient(IPAddress address, int port) : base(address, port)
         {
             EventQueue = new ConcurrentQueue<TransportEventData>();
-            _readBuffer = new Buffer(0);
+            _readBuffer = new Buffer(OptionReceiveBufferSize);
             _packetReadingSize = 0;
         }
 
         protected override void OnConnected()
         {
             base.OnConnected();
-            _readBuffer.Resize(OptionReceiveBufferSize);
-            _readBuffer.Clear();
-            _packetReadingSize = 0;
             EventQueue.Enqueue(new TransportEventData()
             {
                 type = ENetworkEvent.ConnectEvent,
