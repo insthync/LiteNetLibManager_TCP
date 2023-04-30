@@ -37,6 +37,10 @@ namespace LiteNetLibManager
                 return 0;
             }
         }
+        public bool HasImplementedPing
+        {
+            get { return false; }
+        }
 
         public TcpTransport() { }
 
@@ -44,6 +48,16 @@ namespace LiteNetLibManager
         {
             StopClient();
             StopServer();
+        }
+
+        public long GetClientRtt()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public long GetServerRtt(long connectionId)
+        {
+            throw new System.NotImplementedException();
         }
 
         public bool ClientReceive(out TransportEventData eventData)
