@@ -1,8 +1,10 @@
 {
     "name": "TcpTransport",
+    "rootNamespace": "",
     "references": [
         "GUID:213773efbee1c874e8264de949c544d2",
-        "GUID:302cce8bc3ee0014da34daebe3087f54"
+        "GUID:302cce8bc3ee0014da34daebe3087f54",
+        "GUID:31f70a8aefd57b049ae8e786e7ddac5f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
